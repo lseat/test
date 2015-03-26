@@ -33,6 +33,19 @@ let rec find_match (p : pattern) (v : value) : environment option =
 
 (** apply the given operator to the given arguments *)
 let rec eval_operator (op : operator) (v1 : value) (v2 : value) : value =
+	match (op, v1, v2) with
+	| (Plus, VInt a, VInt b) -> VInt (a + b)
+	| (Minus, VInt a, VInt b) -> VInt (a - b)
+	| (Times, VInt a, VInt b) -> VInt (a * b)
+	| (Gt, VInt a, VInt b) -> VBool (a > b)
+	| (Lt, VInt a, VInt b) -> VBool (a < b)
+	| (Eq, VInt a, VInt b) -> VBool (a = b)
+	| (GtEq, VInt a, VInt b) -> VBool (a >= b)
+	| (LtEq, VInt a, VInt b) -> VBool (a <= b)
+	| (NotEq, VInt a, VInt b) -> VBool (a != b)
+	| (Concat, VString a, VString b) -> VString (a^b)
+	| _ -> VError "error"
+	
   failwith "I never could bear the idea of anyone expecting something from me.
             It always made me want to do just the opposite."
 
