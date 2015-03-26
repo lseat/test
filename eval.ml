@@ -45,14 +45,17 @@ let rec eval_operator (op : operator) (v1 : value) (v2 : value) : value =
 	| (NotEq, VInt a, VInt b) -> VBool (a != b)
 	| (Concat, VString a, VString b) -> VString (a^b)
 	| _ -> VError "error"
-	
+
+(*
   failwith "I never could bear the idea of anyone expecting something from me.
             It always made me want to do just the opposite."
+        *)
 
-(** Format a value for printing. *)
+(** Format a value for printing. 
 let rec format_value (f : Format.formatter) (v : value) : unit =
   failwith "I'm going to smile, and my smile will sink down into your pupils,
             and heaven knows what it will become."
+        *)
 
 (** use format_value to print a value to the console *)
 let print_value = Printer.make_printer format_value
@@ -63,6 +66,12 @@ let string_of_value = Printer.make_string_of format_value
 (******************************************************************************)
 (** eval **********************************************************************)
 (******************************************************************************)
+let rec evalVal env v =
+	match env with
+	| [] -> VError "error"
+	| (a,ref b)::tl -> if (a == v) then b else evalVal tl v
+	| _ -> VError "error"
+
 
 let rec eval env e =
   match e with 
@@ -84,7 +93,7 @@ let rec eval env e =
                     |VBool false -> eval env e3
                     |_ -> VError "error"
             end
-  |Var v -> VError "error"
+  |Var v -> evalVal env v
   |Fun (v,e1) -> VClosure(v,e1,env)
   |Pair (e1,e2) -> VPair((eval env e1), (eval env e2))
   |Variant (c,e1) -> VVariant (c,(eval env e1))
@@ -95,7 +104,7 @@ let rec eval env e =
   |App (e1,e2) -> let inp = eval env e1 in
                   begin
                   match inp with
-                  |VClosure (va,e11,envv) -> eval envv e2
+                  |VClosure (va,e11,envv) -> eval (va::ref e2) e11
                   |_ -> VError "error"
                 end
                   (* need double check *)
